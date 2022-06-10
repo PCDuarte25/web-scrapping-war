@@ -1,7 +1,6 @@
 <?php
 
 namespace Galoa\ExerciciosPhp2022\WebScrapping;
-
 /**
  * Does the scrapping of a webpage.
  */
@@ -16,15 +15,26 @@ class Scrapper {
     $query = "//a[contains(@class,'paper-card')]";
     $posts = $xpath->query($query);
 
-    $post = $posts->item(0);
-    
-    $title = getTitle($post, $xpath);
-    $type = getTipo($post, $xpath);
-    $id = getId($post, $xpath);
-    $authors = getAuthors($post, $xpath);
-    $institutions = getInstitutions($post, $xpath);
+    $formatedPosts = [];
+
+    for ($i = 0; $i < $posts->count(); $i++) {
+      $post = $posts->item($i);
+      
+      $title = getTitle($post, $xpath);
+      $id = getId($post, $xpath);
+      $type = getTipo($post, $xpath);
+      $authors = getAuthors($post, $xpath);
+      $institutions = getInstitutions($post, $xpath);
+      
+      array_push($formatedPosts, new Post($title, $id, $type, $authors, $institutions));
+
+      if (!$formatedPosts[$i]->checkPost()) {
+        echo "HTML may has to be updated, check for invalid inputs";
+        return;
+      }
+    }
   }
-  
+
 }
 
 function getTitle($post, $xpath) {
@@ -40,6 +50,9 @@ function getAuthors($post, $xpath) {
     $authorName = $authors->item($i)->textContent;
     $formatedAuthorName = preg_replace('/\s+/i', ' ', $authorName);
     $formatedAuthorName = str_replace(';', '', $formatedAuthorName);
+    if (!$formatedAuthorName || $formatedAuthorName === ' ') {
+      continue;
+    }
     array_push($authorsNames, $formatedAuthorName);
   }
 
@@ -52,6 +65,9 @@ function getInstitutions($post, $xpath) {
   for ($i = 0; $i < $institutions->count(); $i++) {
     $institutionName = $institutions->item($i)->getAttribute('title');
     $formatedInstitutionName = preg_replace('/\s+/i', ' ', $institutionName);
+    if (!$formatedInstitutionName || $formatedInstitutionName === ' ') {
+      continue;
+    }
     array_push($institutionsNames, $formatedInstitutionName);
   }
 
