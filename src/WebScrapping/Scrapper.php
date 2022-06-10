@@ -1,6 +1,12 @@
 <?php
-
 namespace Galoa\ExerciciosPhp2022\WebScrapping;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Common\Entity\Row;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Style\CellAlignment;
+use Box\Spout\Common\Entity\Style\Color;
+use Box\Spout\Common\Entity\Style\Border;
+use Box\Spout\Writer\Common\Creator\Style\BorderBuilder;
 /**
  * Does the scrapping of a webpage.
  */
@@ -33,6 +39,75 @@ class Scrapper {
         return;
       }
     }
+    
+    // writer
+    $borderHeader = (new BorderBuilder())
+    ->setBorderBottom(Color::BLACK, Border::WIDTH_MEDIUM, Border::STYLE_SOLID)
+    ->setBorderTop(Color::BLACK, Border::WIDTH_MEDIUM, Border::STYLE_SOLID)
+    ->setBorderLeft(Color::BLACK, Border::WIDTH_MEDIUM, Border::STYLE_SOLID)
+    ->setBorderRight(Color::BLACK, Border::WIDTH_MEDIUM, Border::STYLE_SOLID)
+    ->build();
+
+    $styleHeader = (new StyleBuilder())
+    ->setFontBold()
+    ->setFontSize(12)
+    ->setFontColor(Color::WHITE)
+    ->setFontName('Arial')
+    ->setCellAlignment(CellAlignment::CENTER)
+    ->setBackgroundColor(Color::rgb(77,30,87))
+    ->setBorder($borderHeader)
+    ->build();
+
+    $borderRows = (new BorderBuilder())
+    ->setBorderBottom(Color::BLACK, Border::WIDTH_THIN, Border::STYLE_SOLID)
+    ->setBorderTop(Color::BLACK, Border::WIDTH_THIN, Border::STYLE_SOLID)
+    ->setBorderLeft(Color::BLACK, Border::WIDTH_THIN, Border::STYLE_SOLID)
+    ->setBorderRight(Color::BLACK, Border::WIDTH_THIN, Border::STYLE_SOLID)
+    ->build();
+
+    $styleHRowsLP = (new StyleBuilder())
+    ->setFontSize(12)
+    ->setFontColor(Color::BLACK)
+    ->setFontName('Arial')
+    ->setCellAlignment(CellAlignment::CENTER)
+    ->setBackgroundColor(Color::rgb(215,215,234))
+    ->setBorder($borderRows)
+    ->build();
+
+    $styleHRowsP = (new StyleBuilder())
+    ->setFontSize(12)
+    ->setFontColor(Color::BLACK)
+    ->setFontName('Arial')
+    ->setCellAlignment(CellAlignment::CENTER)
+    ->setBackgroundColor(Color::rgb(217,222,249))
+    ->setBorder($borderRows)
+    ->build();
+
+    $writer = WriterEntityFactory::createXLSXWriter();
+    
+    $writer->openToFile('Posts.xlsx'); 
+
+    $values = ['ID', 'Title', 'Type'];
+
+    $biggerArray = getBiggerArray($formatedPosts);
+    createHeader($biggerArray, $values);
+
+    $rowFromValues = WriterEntityFactory::createRowFromArray($values, $styleHeader);
+    $writer->addRow($rowFromValues);
+
+
+    for ($i = 0; $i < count($formatedPosts); $i++) {
+      $values2 =  [$formatedPosts[$i]->getId(), $formatedPosts[$i]->getTitle(), $formatedPosts[$i]->getType()];
+
+      addAuthorAndInstitution($formatedPosts[$i], $values2);
+
+      $backGroundColor = $i % 2 === 0 ? $styleHRowsLP :  $styleHRowsP;
+
+      $rowFromValues2 = WriterEntityFactory::createRowFromArray($values2, $backGroundColor);
+      $writer->addRow($rowFromValues2);
+    }
+    
+    $writer->close();
   }
 
 }
@@ -82,4 +157,33 @@ function getTipo($post, $xpath) {
 function getId($post, $xpath) {
   $id = $xpath->query("descendant::*[contains(@class,'volume-info')]", $post)->item(0)->textContent;
   return $id;
+}
+
+function addAuthorAndInstitution($post, &$values) {
+  $authors = $post->getAuthors();
+  $institutions = $post->getInstitutions();
+  for ($i = 0; $i < count($authors); $i++) {
+    $author = $authors[$i];
+    $institution = $institutions[$i];
+
+    array_push($values, $author);
+    array_push($values, $institution);
+  }
+}
+
+function getBiggerArray($posts) {
+  $biggerArray = 0;
+  for ($i = 0; $i < count($posts); $i++) {
+    if(count($posts[$i]->getAuthors()) > $biggerArray) {
+      $biggerArray = count($posts[$i]->getAuthors());
+    }
+  }
+  return $biggerArray;
+}
+
+function createHeader($size, &$values) {
+  for ($i = 1; $i <= $size; $i++) {
+    array_push($values, "Author{$i}");
+    array_push($values, "Institution{$i}");
+  }
 }
