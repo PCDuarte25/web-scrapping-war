@@ -17,6 +17,46 @@ class Post {
         $this->institutions = $institutions;
     }
 
+    public function getTitle() {
+        return $this->title;
+    }
+
+    public function getId() {
+        return $this->id;
+    }
+
+    public function getType() {
+        return $this->type;
+    }
+
+    public function getAuthors() {
+        return $this->authors;
+    }
+
+    public function getInstitutions() {
+        return $this->institutions;
+    }
+
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    public function setType($type) {
+        $this->type = $type;
+    }
+
+    public function setAuthors($authors) {
+        $this->authors = $authors;
+    }
+
+    public function setInstitutions($institutions) {
+        $this->institutions = $institutions;
+    }
+
     public function checkPost() {
         if (count($this->authors) !== count($this->institutions)) {
             echo "the arrays haven't the same lenght\n";
@@ -55,3 +95,5 @@ class Post {
         return true;
     }
 }
+
+
