@@ -19,7 +19,20 @@ class ComputerPlayerCountry extends BaseCountry {
    *   The country that will be attacked, NULL if none will be.
    */
   public function chooseToAttack(): ?CountryInterface {
-    // @TODO
-  }
+    $isAttacking =  rand(0, 1);
+    if ($isAttacking === 0 || $this->getNumberOfTroops() <= 1) return NULL; 
 
+    $neighbors = $this->getNeighbors();
+
+    foreach($neighbors as $neighbor) {
+      if (!$neighbor->isConquered()) {
+        // echo "possibilidades de ataque: {$neighbor->getName()}\n"; Debugger para checar as possibilidades de ataque
+      }
+    }
+
+    do {
+      $sortedNumber = rand(0, count($neighbors) - 1);
+    } while($neighbors[$sortedNumber]->isConquered());
+    return $neighbors[$sortedNumber];
+  }
 }
