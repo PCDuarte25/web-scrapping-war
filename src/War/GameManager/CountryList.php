@@ -24,19 +24,22 @@ class CountryList {
       'Rhovanion' => ['Rohan'],
       'Harondor' => ['Gondor', 'Mordor'],
       'Mordor' => ['Harondor', 'Gondor'],
-    ];
+    ]; 
 
     $countries = [];
     foreach (array_keys($map) as $index => $name) {
-      if ($index) {
-        $countries[$name] = new ComputerPlayerCountry($name);
-        readline_add_history($name);
-      }
-      else {
-        $countries[$name] = new HumanPlayerCountry($name);
-      }
-    }
+      // Was commented because I'm not sure if human player exists
 
+      // if ($index) {
+      //   $countries[$name] = new ComputerPlayerCountry($name);
+      //   readline_add_history($name);
+      // }
+      // else {
+      //   $countries[$name] = new HumanPlayerCountry($name);
+      // }
+      $countries[$name] = new ComputerPlayerCountry($name);
+    }
+    
     foreach ($map as $name => $neighborNames) {
       $countries[$name]->setNeighbors(array_map(function ($countryName) use ($countries) {
         return $countries[$countryName];
@@ -45,5 +48,4 @@ class CountryList {
 
     return $countries;
   }
-
 }
