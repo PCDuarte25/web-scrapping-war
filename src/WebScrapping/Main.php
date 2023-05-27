@@ -5,7 +5,7 @@ namespace Galoa\ExerciciosPhp2022\WebScrapping;
 use DOMDocument;
 
 /**
- * Runner for the Webscrapping exercice.
+ * Mudei so pra ter um pr
  */
 class Main {
 
